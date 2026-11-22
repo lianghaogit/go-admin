@@ -1,0 +1,57 @@
+# =====================================================
+# {{.ClassName}}（{{.TableComment}}）代码生成包
+# 作者：{{.Author }} · Go Admin 代码生成器
+# 生成类型：{{if .IsTree}}树形结构{{else if .IsSub}}主子表{{else}}单表{{end}}
+# =====================================================
+
+## 生成内容
+- backend/model/{{.ClassSnake}}.go          GORM 模型（表 {{.TableName}}{{if .IsSub}} + 子表 {{.SubTableName}}{{end}}）
+- backend/dao/{{.ClassSnake}}_dao.go        {{if .IsTree}}树形查询/增删改{{else if .IsSub}}主子表事务增删改{{else}}分页查询 + 增删改查{{end}}
+- backend/api/{{.ClassSnake}}_api.go        Gin Handler，并在 init() 内自注册路由与菜单
+- backend/router.go.txt                   说明文件（路由已自注册，无需修改 router.go）
+- frontend/src/api/{{.ClassVar}}.ts        前端接口封装
+- frontend/src/views/{{.ModuleName}}/{{.ClassVar}}/index.vue  列表页{{if .IsTree}}（树形表格）{{else if .IsSub}}（含子表明细编辑）{{end}}
+
+## 接入步骤（放进去重启即可用）
+1. 后端：把 backend/model、backend/dao、backend/api 下的文件分别放入 backend 对应目录（包名不变）；
+2. 前端：把 frontend/src/api/*.ts、frontend/src/views/ 放入前端对应目录；
+3. 重新编译并重启后端：cd backend && go build -o go-admin.exe . && ./go-admin.exe
+4. 前端构建/热更新后，菜单会由 seed 自动写入（{{.FunctionName}}：{{.ModuleName}}:{{.ClassVar}}:list），无需手工改 router.go 或 seed.go。
+
+## 表结构
+主键：{{.IDField}} ({{.IDGoType}})
+字段（{{len .Fields}} 个）：
+{{- range .Fields}}
+- {{.ColumnName}} ({{.ColumnType}}) -> Go {{.GoType}}：{{.Comment}}{{if .IsPk}} [主键]{{end}}{{if .IsQuery}} [查询 {{.QueryType}}]{{end}}{{if .IsForm}} [表单 {{.FormType}}]{{end}}
+{{- end}}
+
+## Excel 导入导出
+- 生成菜单挂在“系统工具”（`ParentID=1700`），自动创建查询/新增/修改/删除/导入/导出 6 个按钮权限；
+- 导出：`GET /api/{{.ModuleName}}/{{.ClassVar}}/export`，按列表当前搜索条件导出 xlsx（不分页）；
+- 模板：`GET /api/{{.ModuleName}}/{{.ClassVar}}/importTemplate`，下载仅表头的导入模板；
+- 导入：`POST /api/{{.ModuleName}}/{{.ClassVar}}/importData`，`multipart/form-data` 传 `file` 与 `updateSupport`（`true` 时主键已存在则覆盖更新）；
+- 仅支持 xlsx，单文件 5MB、最多 5000 行；按表头名称匹配字段，空白单元格按空值处理（更新时建议保留整行数据）；
+- 前端导入弹窗使用 `frontend/src/components/ExcelImportDialog/index.vue`（工程内已内置，生成包不重复输出）。
+- 显式主键导入后，PostgreSQL 会把自增序列同步到当前最大主键，避免后续新增撞键。
+{{- if .IsSub}}
+- 主子表：导出与模板均为两张工作表（主表 + 明细），明细首列“所属主表行号”指向主表 Excel 行号（数据从第 2 行开始）。
+{{- end}}
+{{- if .IsTree}}
+- 树形：导出为平铺数据；导入时父级列填父级主键，先导入上级或显式填写已存在的父级 ID。
+{{- end}}
+{{- if .IsTree}}
+
+## 树形结构
+- 父级列：{{.TreeParent}} -> {{.TreeParentGoField}}
+- 名称列：{{.TreeName}}（{{.TreeNameLabel}}）
+- 编码列：{{.TreeCode}}（{{.TreeCodeLabel}}）
+- 删除时若存在下级节点会被拦截。
+{{- end}}
+{{- if .IsSub}}
+
+## 主子表
+- 子表：{{.SubTableName}}（{{.SubTableComment}}）
+- 子表外键：{{.SubFkColumn}} -> {{.SubFkGoField}}
+- 新增/修改在同一事务内写主表与子表；修改时子表整表重写；
+- 删除主表时先删子表数据（关联由程序维护，数据库不建物理外键）。
+{{- end}}

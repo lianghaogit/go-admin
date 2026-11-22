@@ -1,0 +1,248 @@
+{
+	"pages": [
+		{
+			"path": "pages/login/index",
+			"style": {
+				"navigationBarTitleText": "登录"
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "Go Admin",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/mine/index",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/menu/index",
+			"style": {
+				"navigationBarTitleText": "功能菜单",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/user/index",
+			"style": {
+				"navigationBarTitleText": "用户管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/role/index",
+			"style": {
+				"navigationBarTitleText": "角色管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/role/authUser/index",
+			"style": {
+				"navigationBarTitleText": "分配用户",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/menu/index",
+			"style": {
+				"navigationBarTitleText": "菜单管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/dept/index",
+			"style": {
+				"navigationBarTitleText": "部门管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/dict/index",
+			"style": {
+				"navigationBarTitleText": "字典管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/dictdata/index",
+			"style": {
+				"navigationBarTitleText": "字典数据",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/post/index",
+			"style": {
+				"navigationBarTitleText": "岗位管理",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/config/index",
+			"style": {
+				"navigationBarTitleText": "参数配置",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/notice/index",
+			"style": {
+				"navigationBarTitleText": "通知公告",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/loginlog/index",
+			"style": {
+				"navigationBarTitleText": "登录日志",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/operlog/index",
+			"style": {
+				"navigationBarTitleText": "操作日志",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/online/index",
+			"style": {
+				"navigationBarTitleText": "在线用户",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/api/index",
+			"style": {
+				"navigationBarTitleText": "接口权限",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/job/index",
+			"style": {
+				"navigationBarTitleText": "定时任务",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/joblog/index",
+			"style": {
+				"navigationBarTitleText": "任务执行日志",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/server/index",
+			"style": {
+				"navigationBarTitleText": "服务监控",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/cache/index",
+			"style": {
+				"navigationBarTitleText": "缓存监控",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/flow/todo/index",
+			"style": {
+				"navigationBarTitleText": "待办审批",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/flow/apply/index",
+			"style": {
+				"navigationBarTitleText": "发起申请",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/flow/done/index",
+			"style": {
+				"navigationBarTitleText": "已办任务",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/flow/cc/index",
+			"style": {
+				"navigationBarTitleText": "抄送我的",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/db/index",
+			"style": {
+				"navigationBarTitleText": "数据监控",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/flow/def/index",
+			"style": {
+				"navigationBarTitleText": "流程定义",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/tool/gen/index",
+			"style": {
+				"navigationBarTitleText": "代码生成",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/tool/api-doc/index",
+			"style": {
+				"navigationBarTitleText": "接口文档",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/system/tool/upload/index",
+			"style": {
+				"navigationBarTitleText": "文件上传",
+				"enablePullDownRefresh": false
+			}
+		}
+	],
+	"tabBar": {
+		"color": "#909399",
+		"selectedColor": "#409eff",
+		"backgroundColor": "#ffffff",
+		"borderStyle": "black",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页",
+				"iconPath": "static/tabbar/home_normal.png",
+				"selectedIconPath": "static/tabbar/home_active.png"
+			},
+			{
+				"pagePath": "pages/mine/index",
+				"text": "我的",
+				"iconPath": "static/tabbar/mine_normal.png",
+				"selectedIconPath": "static/tabbar/mine_active.png"
+			}
+		]
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "Go Admin",
+		"navigationBarBackgroundColor": "#ffffff",
+		"backgroundColor": "#f5f7fa",
+		"backgroundTextStyle": "dark"
+	},
+	"uniIdRouter": {}
+}

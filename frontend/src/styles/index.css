@@ -1,0 +1,347 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', Arial, sans-serif;
+  font-size: 14px;
+  color: #303133;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 全局路由进度条（对标 nprogress） ===== */
+#go-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  z-index: 99999;
+  background: var(--el-color-primary, #409eff);
+  box-shadow: 0 0 10px var(--el-color-primary, #409eff);
+  opacity: 0;
+  pointer-events: none;
+}
+
+#go-progress-bar.go-progress-active {
+  opacity: 1;
+  transition: width 0.25s ease;
+}
+
+/* ===== 布局主题变量（侧边栏/导航栏/主区/页脚） ===== */
+:root {
+  --go-sidebar-bg: #304156;
+  --go-sidebar-logo-bg: #263445;
+  --go-sidebar-logo-text: #ffffff;
+  --go-sidebar-text: #bfcbd9;
+  --go-sidebar-active-text: #409eff;
+  --go-sidebar-hover: #263445;
+  --go-navbar-bg: #ffffff;
+  --go-navbar-text: #303133;
+  --go-topnav-hover: rgba(0, 0, 0, 0.06);
+  --go-topnav-active: var(--el-color-primary);
+  --go-topnav-logo-text: #303133;
+  --go-main-bg: #f0f2f5;
+  --go-footer-bg: #ffffff;
+  --go-border-color: #e4e7ed;
+  --go-desktop-bg1: #e8edf3;
+  --go-desktop-bg2: #d7e0ec;
+  --go-startmenu-bg: rgba(244, 246, 250, 0.97);
+}
+
+/* 侧边栏浅色主题 */
+html.sidebar-light {
+  --go-sidebar-bg: #ffffff;
+  --go-sidebar-logo-bg: #ffffff;
+  --go-sidebar-logo-text: #303133;
+  --go-sidebar-text: #303133;
+  --go-sidebar-hover: #f5f7fa;
+}
+
+/* 暗黑模式（配合 element-plus dark css-vars） */
+html.dark {
+  --go-navbar-bg: #141414;
+  --go-navbar-text: #e5eaf3;
+  --go-topnav-hover: rgba(255, 255, 255, 0.1);
+  --go-topnav-active: var(--el-color-primary);
+  --go-topnav-logo-text: #e5eaf3;
+  --go-main-bg: #000000;
+  --go-footer-bg: #141414;
+  --go-border-color: #2b2b2b;
+  --go-desktop-bg1: #1b1d21;
+  --go-desktop-bg2: #121417;
+  --go-startmenu-bg: rgba(29, 30, 31, 0.97);
+}
+
+html.dark body {
+  color: #e5eaf3;
+}
+
+/* 侧边栏浅色 + 暗黑：主区统一 */
+html.dark.sidebar-light {
+  --go-sidebar-bg: #1d1e1f;
+  --go-sidebar-logo-bg: #141414;
+  --go-sidebar-logo-text: #e5eaf3;
+  --go-sidebar-text: #bfcbd9;
+  --go-sidebar-hover: #2b2b2b;
+}
+
+/* ===== 表格 / 按钮 / 卡片通用防折行（任何宽度下表头与按钮文字不换行） ===== */
+.el-table th .cell {
+  white-space: nowrap;
+}
+
+.el-button {
+  white-space: nowrap;
+}
+
+.el-breadcrumb {
+  white-space: nowrap;
+}
+
+/* 弹窗窄窗自适应：固定宽度弹窗不超出视口（宽屏不受影响） */
+.el-dialog {
+  max-width: calc(100vw - 32px);
+}
+
+/* 页面通用卡片/表格在暗黑下的过渡由 element-plus dark 变量自动处理 */
+
+/* ===== 设计进阶：圆角体系（所有组件圆角 ≤ 2px，圆形控件除外） ===== */
+:root {
+  --el-border-radius-base: 2px;
+  --el-border-radius-small: 2px;
+  --el-border-radius-round: 2px;
+  --el-border-radius-large: 2px;
+  --go-table-header-bg: #f5f7fa;
+  --go-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+html.dark {
+  --go-table-header-bg: #1d1e1f;
+  --go-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* 圆形控件保持圆形：头像 / 开关滑块 / 单选点 / 圆形按钮 / 标签关闭钮 */
+.el-avatar,
+.el-avatar--circle,
+.el-switch__core,
+.el-radio__inner,
+.el-button.is-round,
+.el-tag .el-tag__close {
+  border-radius: 50% !important;
+}
+
+/* 兜底：常见组件圆角统一收敛到 2px（覆盖组件内部固定值） */
+.el-button,
+.el-button-group > .el-button,
+.el-card,
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper,
+.el-popper,
+.el-dropdown__popper,
+.el-tooltip__popper,
+.el-message,
+.el-message-box,
+.el-dialog,
+.el-drawer,
+.el-table,
+.el-pagination,
+.el-pagination .el-pager li,
+.el-pagination .btn-prev,
+.el-pagination .btn-next,
+.el-tag,
+.el-tree,
+.el-popover,
+.el-notification,
+.el-collapse,
+.el-collapse-item__header,
+.el-collapse-item__wrap,
+.el-calendar-table,
+.el-time-panel,
+.el-date-picker,
+.el-scrollbar__thumb,
+.el-progress-bar__outer,
+.el-progress-bar__inner {
+  border-radius: 2px !important;
+}
+
+/* ===== 设计进阶：全局视觉细节 ===== */
+/* 卡片：细边框 + 极轻阴影，在浅灰主区上增强层级 */
+.el-card {
+  border: 1px solid var(--go-border-color);
+  box-shadow: var(--go-card-shadow);
+}
+
+.el-card.is-always-shadow,
+.el-card.is-hover-shadow {
+  box-shadow: var(--go-card-shadow);
+}
+
+/* 表格表头：浅底 + 中粗字重，增强表头层级 */
+.el-table th.el-table__cell {
+  background: var(--go-table-header-bg);
+  font-weight: 600;
+  padding: 6px 0;
+}
+
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  background: var(--go-table-header-bg);
+}
+
+/* 侧边栏菜单激活态：左侧 2px 主色指示条 + 淡渐变背景（含折叠态 popup 浮层） */
+.sidebar-container .el-menu .el-menu-item.is-active,
+.sidebar-container .el-sub-menu .el-menu-item.is-active,
+.el-menu--popup-container .el-menu-item.is-active {
+  background: linear-gradient(90deg, rgba(64, 158, 255, 0.14), rgba(64, 158, 255, 0.03));
+  border-left: 2px solid var(--el-color-primary);
+}
+
+/* 主区 hover 态统一：表格行 hover 由 EP 变量接管，按钮/链接 hover 微提升 */
+.el-link:hover {
+  color: var(--el-color-primary) !important;
+}
+
+/* 弹窗头部：加细分隔，明确标题层级 */
+.el-dialog__header {
+  border-bottom: 1px solid var(--el-border-color-lighter, #ebeef5);
+  margin-right: 0 !important;
+  padding-bottom: 14px;
+}
+
+/* 输入控件 focus 描边统一为主色（EP 默认已提供，微调厚度一致） */
+.el-input__wrapper.is-focus,
+.el-select__wrapper.is-focused,
+.el-textarea__inner:focus {
+  box-shadow: 0 0 0 1px var(--el-color-primary) inset;
+}
+
+/* ===== 设计进阶：紧凑布局 + 高级质感 ===== */
+/* 主区背景：更干净柔和（原 #f0f2f5） */
+:root {
+  --go-main-bg: #f6f8fc;
+}
+
+/* 卡片：内边距适度收紧（紧凑但不拥挤）+ hover 微阴影 */
+.el-card__body {
+  padding: 16px 18px;
+}
+
+.el-card__header {
+  padding: 12px 18px;
+}
+
+/* 页面容器：全局统一紧凑内边距（原各页 20px） */
+html .app-container {
+  padding: 16px !important;
+}
+
+.el-card.is-hover-shadow:hover {
+  box-shadow: 0 4px 16px rgba(0, 21, 41, 0.08);
+}
+
+/* 表格：行垂直内边距收紧 + hover 淡主色 */
+.el-table td.el-table__cell {
+  padding: 6px 0;
+}
+
+.el-table .el-table__row:hover > td.el-table__cell {
+  background: rgba(64, 158, 255, 0.05);
+}
+
+html.dark .el-table .el-table__row:hover > td.el-table__cell {
+  background: rgba(64, 158, 255, 0.14);
+}
+
+/* 菜单：垂直菜单项高度紧凑（46px，原 56px） */
+.el-menu--vertical .el-menu-item,
+.el-menu--vertical .el-sub-menu__title {
+  height: 46px;
+  line-height: 46px;
+}
+
+/* 按钮：高级质感——顶部内高光 + 轻投影（叠加在 EP 配色之上，hover 不冲突） */
+.el-button--primary,
+.el-button--success,
+.el-button--warning,
+.el-button--danger,
+.el-button--info {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0));
+  box-shadow: 0 1px 2px rgba(31, 45, 61, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.el-button--primary:hover,
+.el-button--success:hover,
+.el-button--warning:hover,
+.el-button--danger:hover,
+.el-button--info:hover {
+  box-shadow: 0 3px 8px rgba(31, 45, 61, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* 弹窗：内边距适度收紧 */
+.el-dialog__body {
+  padding: 14px 20px;
+}
+
+.el-dialog__footer {
+  padding: 8px 20px 16px;
+}
+
+/* 分页：按钮高度紧凑 */
+.el-pagination {
+  --el-pagination-button-height: 26px;
+}
+
+/* 搜索区：inline 表单项间距收紧（原 32px） */
+.el-form--inline .el-form-item {
+  margin-right: 16px;
+  margin-bottom: 12px;
+}
+
+/* 滚动条：细条 + 柔和 thumb */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(144, 147, 153, 0.35);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(144, 147, 153, 0.55);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ===== 配色体系：语义化颜色变量（浅/暗双值，消除散落硬编码） ===== */
+:root {
+  --go-text-primary: #303133;
+  --go-text-regular: #606266;
+  --go-text-secondary: #909399;
+  --go-fill-light: #f5f7fa;
+  /* 边框统一引用既有 --go-border-color（单一来源，暗黑下自动变 #2b2b2b） */
+  --go-border-regular: var(--go-border-color);
+  --go-bg-page: #ffffff;
+}
+
+html.dark {
+  --go-text-primary: #e5eaf3;
+  --go-text-regular: #cfd3dc;
+  --go-text-secondary: #a3a6ad;
+  --go-fill-light: #1d1e1f;
+  --go-border-regular: var(--go-border-color);
+  --go-bg-page: #141414;
+}

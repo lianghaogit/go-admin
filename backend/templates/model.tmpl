@@ -1,0 +1,27 @@
+package model
+
+// {{.ClassName}} {{.TableComment}}表
+type {{.ClassName}} struct {
+{{- range .Fields}}
+	{{.GoField}} {{modelType .GoType}} {{.GormTag}}{{if .Comment}} // {{.Comment}}{{end}}
+{{- end}}
+{{- if or .IsTree .IsSub}}
+	// Children 子节点/子表数据，仅用于接口返回，不落库
+	Children []{{if .IsSub}}{{.SubClassName}}{{else}}{{.ClassName}}{{end}} `gorm:"-" json:"children,omitempty"`
+{{- end}}
+}
+
+// TableName 指定表名
+func ({{.ClassName}}) TableName() string { return "{{.TableName}}" }
+{{- if .IsSub}}
+
+// {{.SubClassName}} {{.SubTableComment}}表
+type {{.SubClassName}} struct {
+{{- range .SubFields}}
+	{{.GoField}} {{modelType .GoType}} {{.GormTag}}{{if .Comment}} // {{.Comment}}{{end}}
+{{- end}}
+}
+
+// TableName 指定表名
+func ({{.SubClassName}}) TableName() string { return "{{.SubTableName}}" }
+{{- end}}

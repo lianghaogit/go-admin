@@ -1,0 +1,707 @@
+[
+  {
+    "method": "DELETE",
+    "path": "/api/flow/def/:id",
+    "handler": "go-admin/api.DeleteFlowDef"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/cache/clear",
+    "handler": "go-admin/api.CacheClear"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/job/:id",
+    "handler": "go-admin/api.DeleteJob"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/jobLog/:id",
+    "handler": "go-admin/api.DeleteJobLog"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/jobLog/clean",
+    "handler": "go-admin/api.CleanJobLogs"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/logininfor/:infoId",
+    "handler": "go-admin/api.DeleteLoginLog"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/logininfor/clean",
+    "handler": "go-admin/api.CleanLoginLog"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/online/:tokenHash",
+    "handler": "go-admin/api.ForceLogout"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/online/all",
+    "handler": "go-admin/api.ForceLogoutAll"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/operlog/:operId",
+    "handler": "go-admin/api.DeleteOperLog"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/monitor/operlog/clean",
+    "handler": "go-admin/api.CleanOperLog"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/api/:id",
+    "handler": "go-admin/api.DeleteApi"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/config/:id",
+    "handler": "go-admin/api.DeleteConfig"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/dept/:id",
+    "handler": "go-admin/api.DeleteDept"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/dict/data/:dictCode",
+    "handler": "go-admin/api.DeleteDictData"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/dict/type/:id",
+    "handler": "go-admin/api.DeleteDictType"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/menu/:id",
+    "handler": "go-admin/api.DeleteMenu"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/notice/:id",
+    "handler": "go-admin/api.DeleteNotice"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/post/:id",
+    "handler": "go-admin/api.DeletePost"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/role/:id",
+    "handler": "go-admin/api.DeleteRole"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/role/authUser",
+    "handler": "go-admin/api.CancelAuthUsers"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/system/user/:id",
+    "handler": "go-admin/api.DeleteUser"
+  },
+  {
+    "method": "DELETE",
+    "path": "/api/tool/gen/:tableId",
+    "handler": "go-admin/api.DeleteGenTable"
+  },
+  {
+    "method": "GET",
+    "path": "/api/captchaImage",
+    "handler": "go-admin/api.CaptchaImage"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dashboard/loginHeatmap",
+    "handler": "go-admin/api.LoginHeatmap"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dashboard/loginTrend",
+    "handler": "go-admin/api.LoginTrend"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dashboard/operTypeStats",
+    "handler": "go-admin/api.OperTypeStats"
+  },
+  {
+    "method": "GET",
+    "path": "/api/dashboard/stats",
+    "handler": "go-admin/api.DashStats"
+  },
+  {
+    "method": "GET",
+    "path": "/api/flow/apply/list",
+    "handler": "go-admin/api.ListFlowApply"
+  },
+  {
+    "method": "GET",
+    "path": "/api/flow/cc/list",
+    "handler": "go-admin/api.ListFlowCc"
+  },
+  {
+    "method": "GET",
+    "path": "/api/flow/def/:id",
+    "handler": "go-admin/api.GetFlowDef"
+  },
+  {
+    "method": "GET",
+    "path": "/api/flow/def/all",
+    "handler": "go-admin/api.ListEnabledFlowDefs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/flow/def/list",
+    "handler": "go-admin/api.ListFlowDefs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/flow/done/list",
+    "handler": "go-admin/api.ListFlowDone"
+  },
+  {
+    "method": "GET",
+    "path": "/api/flow/instance/:id",
+    "handler": "go-admin/api.GetFlowInstanceDetail"
+  },
+  {
+    "method": "GET",
+    "path": "/api/flow/instance/list",
+    "handler": "go-admin/api.ListFlowInstances"
+  },
+  {
+    "method": "GET",
+    "path": "/api/flow/todo/list",
+    "handler": "go-admin/api.ListFlowTodo"
+  },
+  {
+    "method": "GET",
+    "path": "/api/getInfo",
+    "handler": "go-admin/api.GetInfo"
+  },
+  {
+    "method": "GET",
+    "path": "/api/getRouters",
+    "handler": "go-admin/api.GetRouters"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/cache/info",
+    "handler": "go-admin/api.CacheInfo"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/cache/key",
+    "handler": "go-admin/api.CacheKeyDetail"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/db/info",
+    "handler": "go-admin/api.DbInfo"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/job/:id",
+    "handler": "go-admin/api.GetJob"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/job/executors",
+    "handler": "go-admin/api.ListJobExecutors"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/job/list",
+    "handler": "go-admin/api.ListJobs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/jobLog/list",
+    "handler": "go-admin/api.ListJobLogs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/logininfor/export",
+    "handler": "go-admin/api.ExportLoginLogs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/logininfor/list",
+    "handler": "go-admin/api.ListLoginLogs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/online/list",
+    "handler": "go-admin/api.ListOnlines"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/operlog/export",
+    "handler": "go-admin/api.ExportOperLogs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/operlog/list",
+    "handler": "go-admin/api.ListOperLogs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/monitor/server/info",
+    "handler": "go-admin/api.ServerInfo"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/api/:id",
+    "handler": "go-admin/api.GetApi"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/api/list",
+    "handler": "go-admin/api.ListApis"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/config/:id",
+    "handler": "go-admin/api.GetConfig"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/config/list",
+    "handler": "go-admin/api.ListConfigs"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/dept/:id",
+    "handler": "go-admin/api.GetDept"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/dept/list",
+    "handler": "go-admin/api.ListDepts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/dept/treeselect",
+    "handler": "go-admin/api.DeptTreeSelect"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/dict/data/:dictCode",
+    "handler": "go-admin/api.GetDictData"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/dict/data/list",
+    "handler": "go-admin/api.ListDictData"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/dict/data/type/:dictType",
+    "handler": "go-admin/api.DictDataByType"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/dict/type/:id",
+    "handler": "go-admin/api.GetDictType"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/dict/type/list",
+    "handler": "go-admin/api.ListDictTypes"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/menu/:id",
+    "handler": "go-admin/api.GetMenu"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/menu/list",
+    "handler": "go-admin/api.ListMenus"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/menu/roleMenuTreeselect/:roleId",
+    "handler": "go-admin/api.RoleMenuTreeSelect"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/menu/treeselect",
+    "handler": "go-admin/api.MenuTreeSelect"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/notice/:id",
+    "handler": "go-admin/api.GetNotice"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/notice/active",
+    "handler": "go-admin/api.ListActiveNotices"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/notice/list",
+    "handler": "go-admin/api.ListNotices"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/post/:id",
+    "handler": "go-admin/api.GetPost"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/post/all",
+    "handler": "go-admin/api.ListAllPosts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/post/list",
+    "handler": "go-admin/api.ListPosts"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/role/:id",
+    "handler": "go-admin/api.GetRole"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/role/all",
+    "handler": "go-admin/api.ListAllRoles"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/role/authUser/allocatedList",
+    "handler": "go-admin/api.ListRoleAllocatedUsers"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/role/authUser/unallocatedList",
+    "handler": "go-admin/api.ListRoleUnallocatedUsers"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/role/list",
+    "handler": "go-admin/api.ListRoles"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/user/:id",
+    "handler": "go-admin/api.GetUser"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/user/export",
+    "handler": "go-admin/api.ExportUsers"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/user/importTemplate",
+    "handler": "go-admin/api.ImportUserTemplate"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/user/list",
+    "handler": "go-admin/api.ListUsers"
+  },
+  {
+    "method": "GET",
+    "path": "/api/system/user/profile",
+    "handler": "go-admin/api.GetProfile"
+  },
+  {
+    "method": "GET",
+    "path": "/api/tool/api-doc/list",
+    "handler": "go-admin/router.InitRouter.func3"
+  },
+  {
+    "method": "GET",
+    "path": "/api/tool/gen/:tableId",
+    "handler": "go-admin/api.GetGenTable"
+  },
+  {
+    "method": "GET",
+    "path": "/api/tool/gen/code/:tableId",
+    "handler": "go-admin/api.DownloadGenCode"
+  },
+  {
+    "method": "GET",
+    "path": "/api/tool/gen/db/list",
+    "handler": "go-admin/api.ListDbTables"
+  },
+  {
+    "method": "GET",
+    "path": "/api/tool/gen/list",
+    "handler": "go-admin/api.ListGenTables"
+  },
+  {
+    "method": "GET",
+    "path": "/api/tool/gen/preview/:tableId",
+    "handler": "go-admin/api.PreviewGenTable"
+  },
+  {
+    "method": "POST",
+    "path": "/api/common/upload",
+    "handler": "go-admin/api.UploadFile"
+  },
+  {
+    "method": "POST",
+    "path": "/api/flow/apply",
+    "handler": "go-admin/api.StartFlow"
+  },
+  {
+    "method": "POST",
+    "path": "/api/flow/def",
+    "handler": "go-admin/api.CreateFlowDef"
+  },
+  {
+    "method": "POST",
+    "path": "/api/login",
+    "handler": "go-admin/api.Login"
+  },
+  {
+    "method": "POST",
+    "path": "/api/logout",
+    "handler": "go-admin/api.Logout"
+  },
+  {
+    "method": "POST",
+    "path": "/api/monitor/job",
+    "handler": "go-admin/api.CreateJob"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/api",
+    "handler": "go-admin/api.CreateApi"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/config",
+    "handler": "go-admin/api.CreateConfig"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/dept",
+    "handler": "go-admin/api.CreateDept"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/dict/data",
+    "handler": "go-admin/api.CreateDictData"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/dict/type",
+    "handler": "go-admin/api.CreateDictType"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/menu",
+    "handler": "go-admin/api.CreateMenu"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/notice",
+    "handler": "go-admin/api.CreateNotice"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/post",
+    "handler": "go-admin/api.CreatePost"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/role",
+    "handler": "go-admin/api.CreateRole"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/user",
+    "handler": "go-admin/api.CreateUser"
+  },
+  {
+    "method": "POST",
+    "path": "/api/system/user/importData",
+    "handler": "go-admin/api.ImportUsers"
+  },
+  {
+    "method": "POST",
+    "path": "/api/tool/gen/importTable",
+    "handler": "go-admin/api.ImportGenTables"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/apply/reapply/:id",
+    "handler": "go-admin/api.ReapplyFlow"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/apply/terminate/:id",
+    "handler": "go-admin/api.TerminateFlow"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/apply/urge/:id",
+    "handler": "go-admin/api.UrgeFlow"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/apply/withdraw/:id",
+    "handler": "go-admin/api.WithdrawFlow"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/cc/read/:id",
+    "handler": "go-admin/api.MarkCcRead"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/def",
+    "handler": "go-admin/api.UpdateFlowDef"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/def/changeStatus",
+    "handler": "go-admin/api.ChangeFlowDefStatus"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/todo/addSign",
+    "handler": "go-admin/api.AddSignFlowTask"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/todo/approve",
+    "handler": "go-admin/api.ApproveFlowTask"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/todo/reject",
+    "handler": "go-admin/api.RejectFlowTask"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/flow/todo/transfer",
+    "handler": "go-admin/api.TransferFlowTask"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/monitor/job",
+    "handler": "go-admin/api.UpdateJob"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/monitor/job/changeStatus",
+    "handler": "go-admin/api.ChangeJobStatus"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/monitor/job/run",
+    "handler": "go-admin/api.RunJob"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/api",
+    "handler": "go-admin/api.UpdateApi"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/api/changeStatus",
+    "handler": "go-admin/api.ChangeApiStatus"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/config",
+    "handler": "go-admin/api.UpdateConfig"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/dept",
+    "handler": "go-admin/api.UpdateDept"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/dict/data",
+    "handler": "go-admin/api.UpdateDictData"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/dict/type",
+    "handler": "go-admin/api.UpdateDictType"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/menu",
+    "handler": "go-admin/api.UpdateMenu"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/notice",
+    "handler": "go-admin/api.UpdateNotice"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/post",
+    "handler": "go-admin/api.UpdatePost"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/role",
+    "handler": "go-admin/api.UpdateRole"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/role/authUser",
+    "handler": "go-admin/api.AssignAuthUsers"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/user",
+    "handler": "go-admin/api.UpdateUser"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/user/authRole",
+    "handler": "go-admin/api.AuthRole"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/user/changeStatus",
+    "handler": "go-admin/api.ChangeUserStatus"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/user/profile",
+    "handler": "go-admin/api.UpdateProfile"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/user/profile/avatar",
+    "handler": "go-admin/api.UpdateAvatar"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/user/profile/updatePwd",
+    "handler": "go-admin/api.UpdatePwd"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/system/user/resetPwd",
+    "handler": "go-admin/api.ResetPwd"
+  },
+  {
+    "method": "PUT",
+    "path": "/api/tool/gen",
+    "handler": "go-admin/api.SaveGenTable"
+  }
+]

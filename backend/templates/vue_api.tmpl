@@ -1,0 +1,73 @@
+import request from '@/utils/request'
+
+// {{.TableComment}} 查询参数
+export interface {{.ClassName}}Query {
+  pageNum?: number
+  pageSize?: number
+{{- range .Fields}}
+{{- if .IsQuery}}
+  {{.JsonField}}?: {{.TsType}}
+{{- end}}
+{{- end}}
+}
+{{- if .IsSub}}
+
+// {{.SubTableComment}} 子表数据行
+export interface {{.SubClassName}}Row {
+{{- range .SubFields}}
+  {{.JsonField}}?: {{.TsType}}
+{{- end}}
+}
+{{- end}}
+
+// {{.TableComment}} 数据行
+export interface {{.ClassName}}Row {
+{{- range .Fields}}
+  {{.JsonField}}?: {{.TsType}}
+{{- end}}
+{{- if or .IsTree .IsSub}}
+  children?: {{if .IsSub}}{{.SubClassName}}Row{{else}}{{.ClassName}}Row{{end}}[]
+{{- end}}
+}
+
+export function list{{.ClassName}}(params: {{.ClassName}}Query) {
+  return request.get('/{{.ModuleName}}/{{.ClassVar}}/list', { params })
+}
+
+export function get{{.ClassName}}({{.IDJsonField}}: number | string) {
+  return request.get('/{{.ModuleName}}/{{.ClassVar}}/' + {{.IDJsonField}})
+}
+
+export function add{{.ClassName}}(data: {{.ClassName}}Row) {
+  return request.post('/{{.ModuleName}}/{{.ClassVar}}', data)
+}
+
+export function update{{.ClassName}}(data: {{.ClassName}}Row) {
+  return request.put('/{{.ModuleName}}/{{.ClassVar}}', data)
+}
+
+export function del{{.ClassName}}({{.IDJsonField}}: number | string) {
+  return request.delete('/{{.ModuleName}}/{{.ClassVar}}/' + {{.IDJsonField}})
+}
+
+// ---------- 导入导出 ----------
+export function export{{.ClassName}}(params: {{.ClassName}}Query) {
+  return request.get('/{{.ModuleName}}/{{.ClassVar}}/export', {
+    params,
+    responseType: 'blob',
+    timeout: 30000
+  })
+}
+
+// 下载导入模板
+export function import{{.ClassName}}Template() {
+  return request.get('/{{.ModuleName}}/{{.ClassVar}}/importTemplate', {
+    responseType: 'blob',
+    timeout: 30000
+  })
+}
+
+// 导入数据（FormData：file + updateSupport）
+export function import{{.ClassName}}(data: FormData) {
+  return request.post('/{{.ModuleName}}/{{.ClassVar}}/importData', data, { timeout: 60000 })
+}

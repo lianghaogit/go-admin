@@ -1,0 +1,22 @@
+-- ============================================================
+-- go-admin PostgreSQL 慢查询统计（pg_stat_statements）
+-- 说明：该扩展必须在数据库启动参数里预加载，仅 CREATE EXTENSION 会报
+--       "pg_stat_statements must be loaded via shared_preload_libraries"，
+--       因此需要重启数据库容器。以下步骤在本地 Docker 环境执行。
+--
+-- 步骤 1（宿主机）：追加预加载参数并重启容器（会短暂中断连接）
+--   docker exec my-postgres psql -U postgres -c "ALTER SYSTEM SET shared_preload_libraries = 'pg_stat_statements'"
+--   docker exec my-postgres psql -U postgres -c "ALTER SYSTEM SET pg_stat_statements.track = 'all'"
+--   docker restart my-postgres
+--
+-- 步骤 2（宿主机）：创建扩展（postgres 超级用户）
+--   docker exec my-postgres psql -U postgres -d go_admin -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements"
+--
+-- 步骤 3：查看 go-admin 的慢查询（平均耗时降序）
+--   docker exec my-postgres psql -U postgres -d go_admin -c "SELECT round(mean_exec_time::numeric,2) AS avg_ms, calls, left(query, 80) AS query FROM pg_stat_statements WHERE query LIKE '%sys_%' ORDER BY mean_exec_time DESC LIMIT 10"
+--
+-- 重置统计：SELECT pg_stat_statements_reset();
+-- ============================================================
+
+-- 如果扩展已加载，下面这条可直接执行（未加载时会报错，属预期）
+SELECT extname FROM pg_extension WHERE extname = 'pg_stat_statements';

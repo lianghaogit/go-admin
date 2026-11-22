@@ -1,0 +1,438 @@
+package dao
+
+import (
+{{- if .HasAutoTime}}
+	"time"
+
+{{- end}}
+	"fmt"
+
+{{- if .IsSub}}
+	"go-admin/model"
+
+	"gorm.io/gorm"
+{{- else}}
+	"go-admin/model"
+{{- end}}
+)
+
+// {{.ClassName}}Query {{.FunctionName}}查询条件
+type {{.ClassName}}Query struct {
+	PageNum  int
+	PageSize int
+{{- range .Fields}}
+{{- if .IsQuery}}
+	{{.GoField}} {{.GoType}} // {{.Comment}}
+{{- end}}
+{{- end}}
+}
+
+// List{{.ClassName}} 分页查询{{.FunctionName}}
+func List{{.ClassName}}(q {{.ClassName}}Query) ([]model.{{.ClassName}}, int64, error) {
+	var list []model.{{.ClassName}}
+	db := DB.Model(&model.{{.ClassName}}{})
+{{- range .Fields}}
+{{- if .IsQuery}}
+	// {{.Comment}}
+{{- if eq .GoType "string"}}
+{{- if eq .QueryType "LIKE"}}
+	if q.{{.GoField}} != "" {
+		db = db.Where(likeExprEsc("{{.ColumnName}}"), "%"+escapeLike(q.{{.GoField}})+"%")
+	}
+{{- else}}
+	if q.{{.GoField}} != "" {
+		db = db.Where("{{.ColumnName}} {{if eq .QueryType "EQ"}}= {{else}}{{.QueryType}} {{end}}?", q.{{.GoField}})
+	}
+{{- end}}
+{{- else}}
+	if q.{{.GoField}} != 0 {
+		db = db.Where("{{.ColumnName}} {{if eq .QueryType "EQ"}}= {{else}}{{.QueryType}} {{end}}?", q.{{.GoField}})
+	}
+{{- end}}
+{{- end}}
+{{- end}}
+{{- if .IsTree}}
+	// 树形表一次取全量，由前端按 children 渲染层级（不分页）
+	if err := db.Order("{{.TreeCode}} asc, {{.IDJsonField}} asc").Find(&list).Error; err != nil {
+		return nil, 0, err
+	}
+	return build{{.ClassName}}Tree(list, 0, 0), int64(len(list)), nil
+{{- else}}
+	var total int64
+	if err := db.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	err := db.Order("{{.IDJsonField}} asc").Offset((q.PageNum - 1) * q.PageSize).Limit(q.PageSize).Find(&list).Error
+	return list, total, err
+{{- end}}
+}
+
+// List{{.ClassName}}All 不分页查询{{.FunctionName}}（Excel 导出使用）
+func List{{.ClassName}}All(q {{.ClassName}}Query) ([]model.{{.ClassName}}, error) {
+	var list []model.{{.ClassName}}
+	db := DB.Model(&model.{{.ClassName}}{})
+{{- range .Fields}}
+{{- if .IsQuery}}
+	// {{.Comment}}
+{{- if eq .GoType "string"}}
+{{- if eq .QueryType "LIKE"}}
+	if q.{{.GoField}} != "" {
+		db = db.Where(likeExprEsc("{{.ColumnName}}"), "%"+escapeLike(q.{{.GoField}})+"%")
+	}
+{{- else}}
+	if q.{{.GoField}} != "" {
+		db = db.Where("{{.ColumnName}} {{if eq .QueryType "EQ"}}= {{else}}{{.QueryType}} {{end}}?", q.{{.GoField}})
+	}
+{{- end}}
+{{- else}}
+	if q.{{.GoField}} != 0 {
+		db = db.Where("{{.ColumnName}} {{if eq .QueryType "EQ"}}= {{else}}{{.QueryType}} {{end}}?", q.{{.GoField}})
+	}
+{{- end}}
+{{- end}}
+{{- end}}
+	if err := db.Order("{{.IDJsonField}} asc").Find(&list).Error; err != nil {
+		return nil, err
+	}
+{{- if .IsSub}}
+	// 主子表导出需要带上子表明细
+	for i := range list {
+		var children []model.{{.SubClassName}}
+		if err := DB.Where("{{.SubFkColumn}} = ?", list[i].{{.IDField}}).Order("{{.SubIDJsonField}} asc").Find(&children).Error; err != nil {
+			return nil, err
+		}
+		list[i].Children = children
+	}
+{{- end}}
+	return list, nil
+}
+{{- if .IsTree}}
+
+// build{{.ClassName}}Tree 按父级字段把平铺数据组装成树
+func build{{.ClassName}}Tree(list []model.{{.ClassName}}, parent {{.IDGoType}}, depth int) []model.{{.ClassName}} {
+	nodes := make([]model.{{.ClassName}}, 0)
+	// 防止脏数据把父级指成环导致无限递归
+	if depth > 50 {
+		return nodes
+	}
+	for i := range list {
+		if list[i].{{.TreeParentGoField}} == parent {
+			list[i].Children = build{{.ClassName}}Tree(list, list[i].{{.IDField}}, depth+1)
+			nodes = append(nodes, list[i])
+		}
+	}
+	return nodes
+}
+{{- end}}
+
+// Get{{.ClassName}} 按 ID 查询{{.FunctionName}}
+func Get{{.ClassName}}(id uint) (*model.{{.ClassName}}, error) {
+	var item model.{{.ClassName}}
+	err := DB.First(&item, id).Error
+{{- if .IsSub}}
+	if err != nil {
+		return &item, err
+	}
+	var children []model.{{.SubClassName}}
+	if err := DB.Where("{{.SubFkColumn}} = ?", id).Order("{{.SubIDJsonField}} asc").Find(&children).Error; err != nil {
+		return &item, err
+	}
+	item.Children = children
+{{- end}}
+	return &item, err
+}
+
+// {{.ClassName}}Req {{.FunctionName}}请求体
+type {{.ClassName}}Req struct {
+{{- range .Fields}}
+	{{.GoField}} {{.GoType}} `json:"{{.JsonField}}" excel:"{{if .Comment}}{{.Comment}}{{else}}{{.GoField}}{{end}}"`{{if .Comment}} // {{.Comment}}{{end}}
+{{- end}}
+{{- if .IsSub}}
+	Children []{{.SubClassName}}Req `json:"children" excel:"-"` // 子表数据（Excel 导入来自明细工作表）
+{{- end}}
+}
+{{- if .IsSub}}
+
+// {{.SubClassName}}Req {{.SubTableComment}}请求体
+type {{.SubClassName}}Req struct {
+{{- range .SubFields}}
+{{- if or .IsPk (eq .ColumnName $.SubFkColumn)}}
+	{{.GoField}} {{.GoType}} `json:"{{.JsonField}}" excel:"-"`{{if .Comment}} // {{.Comment}}{{end}}
+{{- else}}
+	{{.GoField}} {{.GoType}} `json:"{{.JsonField}}" excel:"{{if .Comment}}{{.Comment}}{{else}}{{.GoField}}{{end}}"`{{if .Comment}} // {{.Comment}}{{end}}
+{{- end}}
+{{- end}}
+}
+{{- end}}
+
+// Create{{.ClassName}} 新增{{.FunctionName}}
+func Create{{.ClassName}}(r {{.ClassName}}Req) error {
+{{- if .IsSub}}
+	return DB.Transaction(func(tx *gorm.DB) error {
+		item := model.{{.ClassName}}{
+{{- range .Fields}}
+{{- if not .IsPk}}
+			{{.GoField}}: r.{{.GoField}},
+{{- end}}
+{{- end}}
+		}
+{{- range .Fields}}
+{{- if .IsCreateTime}}
+		if item.{{.GoField}}.Time().IsZero() {
+			item.{{.GoField}} = model.LocalTime(time.Now())
+		}
+{{- end}}
+{{- if .IsUpdateTime}}
+		if item.{{.GoField}}.Time().IsZero() {
+			item.{{.GoField}} = model.LocalTime(time.Now())
+		}
+{{- end}}
+{{- end}}
+		if err := tx.Create(&item).Error; err != nil {
+			return err
+		}
+		// 子表随主表一起写入（外键关系由程序维护，数据库不建物理外键）
+		for _, c := range r.Children {
+			child := model.{{.SubClassName}}{
+{{- range .SubFields}}
+{{- if and (not .IsPk) (ne .ColumnName $.SubFkColumn)}}
+				{{.GoField}}: c.{{.GoField}},
+{{- end}}
+{{- end}}
+				{{.SubFkGoField}}: item.{{.IDField}},
+			}
+{{- range .SubFields}}
+{{- if .IsCreateTime}}
+			if child.{{.GoField}}.Time().IsZero() {
+				child.{{.GoField}} = model.LocalTime(time.Now())
+			}
+{{- end}}
+{{- end}}
+			if err := tx.Create(&child).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+{{- else}}
+	item := model.{{.ClassName}}{
+{{- range .Fields}}
+{{- if not .IsPk}}
+		{{.GoField}}: r.{{.GoField}},
+{{- end}}
+{{- end}}
+	}
+{{- range .Fields}}
+{{- if .IsCreateTime}}
+	if item.{{.GoField}}.Time().IsZero() {
+		item.{{.GoField}} = model.LocalTime(time.Now())
+	}
+{{- end}}
+{{- if .IsUpdateTime}}
+	if item.{{.GoField}}.Time().IsZero() {
+		item.{{.GoField}} = model.LocalTime(time.Now())
+	}
+{{- end}}
+{{- end}}
+	return DB.Create(&item).Error
+{{- end}}
+}
+
+// Update{{.ClassName}} 修改{{.FunctionName}}
+func Update{{.ClassName}}(r {{.ClassName}}Req, replaceChildren ...bool) error {
+{{- if .IsSub}}
+	// replaceChildren 仅主子表生效：页面编辑不传时默认全量替换；
+	// 导入未提供该主表明细行时传 false，保留原有明细，避免误删。
+	replace := true
+	if len(replaceChildren) > 0 {
+		replace = replaceChildren[0]
+	}
+{{- end}}
+{{- if .IsTree}}
+	// 父级不能指向自己或自己的下级，否则构树会成环
+	if r.{{.TreeParentGoField}} == r.{{.IDField}} {
+		return fmt.Errorf("上级节点不能是自己")
+	}
+	parentID := r.{{.TreeParentGoField}}
+	for depth := 0; parentID != 0 && depth < 50; depth++ {
+		if parentID == r.{{.IDField}} {
+			return fmt.Errorf("上级节点不能是自身或其下级")
+		}
+		var parent model.{{.ClassName}}
+		if err := DB.Select("{{.TreeParent}}").First(&parent, parentID).Error; err != nil {
+			break
+		}
+		parentID = parent.{{.TreeParentGoField}}
+	}
+{{- end}}
+{{- range .Fields}}
+{{- if .IsUpdateTime}}
+	if r.{{.GoField}}.Time().IsZero() {
+		r.{{.GoField}} = model.LocalTime(time.Now())
+	}
+{{- end}}
+{{- end}}
+	updates := map[string]interface{}{
+{{- range .Fields}}
+{{- if and (not .IsPk) (not .IsCreateTime)}}
+		"{{.ColumnName}}": r.{{.GoField}},
+{{- end}}
+{{- end}}
+	}
+{{- if .IsSub}}
+	return DB.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&model.{{.ClassName}}{}).Where("{{.IDJsonField}} = ?", r.{{.IDField}}).Updates(updates).Error; err != nil {
+			return err
+		}
+		// 页面编辑按全量替换子表；导入未带明细时 replace=false，只更新主表字段
+		if replace {
+			if err := tx.Where("{{.SubFkColumn}} = ?", r.{{.IDField}}).Delete(&model.{{.SubClassName}}{}).Error; err != nil {
+				return err
+			}
+			for _, c := range r.Children {
+				child := model.{{.SubClassName}}{
+{{- range .SubFields}}
+{{- if and (not .IsPk) (ne .ColumnName $.SubFkColumn)}}
+					{{.GoField}}: c.{{.GoField}},
+{{- end}}
+{{- end}}
+					{{.SubFkGoField}}: r.{{.IDField}},
+				}
+{{- range .SubFields}}
+{{- if .IsCreateTime}}
+				if child.{{.GoField}}.Time().IsZero() {
+					child.{{.GoField}} = model.LocalTime(time.Now())
+				}
+{{- end}}
+{{- end}}
+				if err := tx.Create(&child).Error; err != nil {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+{{- else}}
+	return DB.Model(&model.{{.ClassName}}{}).Where("{{.IDJsonField}} = ?", r.{{.IDField}}).Updates(updates).Error
+{{- end}}
+}
+
+// Delete{{.ClassName}} 删除{{.FunctionName}}
+func Delete{{.ClassName}}(id uint) error {
+{{- if .IsTree}}
+	var children int64
+	if err := DB.Model(&model.{{.ClassName}}{}).Where("{{.TreeParent}} = ?", id).Count(&children).Error; err != nil {
+		return err
+	}
+	if children > 0 {
+		return fmt.Errorf("存在下级节点，请先删除下级")
+	}
+	return DB.Delete(&model.{{.ClassName}}{}, id).Error
+{{- else if .IsSub}}
+	return DB.Transaction(func(tx *gorm.DB) error {
+		// 先删子表数据，再删主表（外键关系由程序维护）
+		if err := tx.Where("{{.SubFkColumn}} = ?", id).Delete(&model.{{.SubClassName}}{}).Error; err != nil {
+			return err
+		}
+		return tx.Delete(&model.{{.ClassName}}{}, id).Error
+	})
+{{- else}}
+	return DB.Delete(&model.{{.ClassName}}{}, id).Error
+{{- end}}
+}
+
+// Import{{.ClassName}} 导入单行{{.FunctionName}}：
+// 主键已存在且 updateSupport=true 时更新，否则按新行插入（保留 Excel 中的显式主键）。
+func Import{{.ClassName}}(r {{.ClassName}}Req, updateSupport bool) error {
+{{- if eq .IDGoType "string"}}
+	if r.{{.IDField}} != "" {
+{{- else}}
+	if r.{{.IDField}} != 0 {
+{{- end}}
+		var count int64
+		if err := DB.Model(&model.{{.ClassName}}{}).Where("{{.IDJsonField}} = ?", r.{{.IDField}}).Count(&count).Error; err != nil {
+			return err
+		}
+		if count > 0 {
+			if !updateSupport {
+				return fmt.Errorf("主键 %v 已存在（如需覆盖请勾选“更新支持”）", r.{{.IDField}})
+			}
+{{- if .IsSub}}
+			// 未提供明细行时保留原有明细，只更新主表字段
+			return Update{{.ClassName}}(r, len(r.Children) > 0)
+{{- else}}
+			return Update{{.ClassName}}(r)
+{{- end}}
+		}
+	}
+{{- if .IsSub}}
+	return DB.Transaction(func(tx *gorm.DB) error {
+		item := model.{{.ClassName}}{
+			{{.IDField}}: r.{{.IDField}},
+{{- range .Fields}}
+{{- if not .IsPk}}
+			{{.GoField}}: r.{{.GoField}},
+{{- end}}
+{{- end}}
+		}
+{{- range .Fields}}
+{{- if .IsCreateTime}}
+		if item.{{.GoField}}.Time().IsZero() {
+			item.{{.GoField}} = model.LocalTime(time.Now())
+		}
+{{- end}}
+{{- if .IsUpdateTime}}
+		if item.{{.GoField}}.Time().IsZero() {
+			item.{{.GoField}} = model.LocalTime(time.Now())
+		}
+{{- end}}
+{{- end}}
+		if err := tx.Create(&item).Error; err != nil {
+			return err
+		}
+		for _, c := range r.Children {
+			child := model.{{.SubClassName}}{
+{{- range .SubFields}}
+{{- if and (not .IsPk) (ne .ColumnName $.SubFkColumn)}}
+				{{.GoField}}: c.{{.GoField}},
+{{- end}}
+{{- end}}
+				{{.SubFkGoField}}: item.{{.IDField}},
+			}
+{{- range .SubFields}}
+{{- if .IsCreateTime}}
+			if child.{{.GoField}}.Time().IsZero() {
+				child.{{.GoField}} = model.LocalTime(time.Now())
+			}
+{{- end}}
+{{- end}}
+			if err := tx.Create(&child).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+{{- else}}
+	item := model.{{.ClassName}}{
+		{{.IDField}}: r.{{.IDField}},
+{{- range .Fields}}
+{{- if not .IsPk}}
+		{{.GoField}}: r.{{.GoField}},
+{{- end}}
+{{- end}}
+	}
+{{- range .Fields}}
+{{- if .IsCreateTime}}
+	if item.{{.GoField}}.Time().IsZero() {
+		item.{{.GoField}} = model.LocalTime(time.Now())
+	}
+{{- end}}
+{{- if .IsUpdateTime}}
+	if item.{{.GoField}}.Time().IsZero() {
+		item.{{.GoField}} = model.LocalTime(time.Now())
+	}
+{{- end}}
+{{- end}}
+	return DB.Create(&item).Error
+{{- end}}
+}

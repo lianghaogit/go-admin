@@ -1,0 +1,63 @@
+# 服务配置
+server:
+  port: 8080
+  # debug / release
+  mode: debug
+
+# JWT 配置
+jwt:
+  # 生产环境务必修改；亦可用环境变量 GO_ADMIN_JWT_SECRET 覆盖（优先于本文件）
+  secret: "go-admin-jwt-secret-2026-change-me"
+  # 过期时间（分钟），默认 8 小时
+  expire: 480
+
+# 验证码配置
+captcha:
+  enabled: true
+# 日志保留策略
+logs:
+  # 操作日志/登录日志/任务日志保留天数：0 表示不自动清理（默认）
+  # 设为 90 即：启动时先清一次，之后每 24 小时删除早于 90 天的记录
+  retentionDays: 90
+
+# 数据库配置
+# type 支持三种：
+#   sqlite（默认，纯 Go 驱动，无需安装任何数据库，文件即库，方便零依赖运行与演示）
+#   mysql / postgres（需目标数据库服务可用；首次启动自动建表并写入种子数据，之后每次启动自动迁移）
+database:
+  # 数据库类型：sqlite / mysql / postgres
+  type: postgres
+  # SQLite 数据库文件路径（type=sqlite 时生效，相对路径基于 config.yaml 所在目录）
+  # 当前已切换到 PostgreSQL；原 SQLite 数据仍完整保存在 data/go-admin.db，切回 sqlite 即可继续使用
+  path: "data/go-admin.db"
+  # MySQL / PostgreSQL 连接参数（type=mysql / postgres 时生效）
+  # 当前连接：本地 Docker 容器 my-postgres（postgres:18.4），库 go_admin
+  host: "127.0.0.1"
+  port: 5432
+  user: "postgres"
+  password: "root"
+  dbname: "go_admin"
+  # 业务时区（IANA 名称）：用于数据库会话时区与按天/按小时统计的显式时区转换
+  # 不配置则默认 Asia/Shanghai
+  timezone: "Asia/Shanghai"
+  # 连接池（MySQL / PostgreSQL 生效；SQLite 固定 10/5 以防锁竞争）
+  maxOpenConns: 25
+  maxIdleConns: 10
+  connMaxLifetimeMinutes: 60
+  # PostgreSQL TLS：disable / allow / prefer / require / verify-ca / verify-full（默认 disable）
+  sslmode: "disable"
+  # 启动时是否自动建表/迁移（默认 true）。生产环境设 false，由 DBA 执行变更，避免启动即改结构
+  autoMigrate: true
+  # 启动时是否写入/补齐种子数据与生成模块菜单（默认 true）。
+  # 与 autoMigrate 解耦：生产可关闭自动迁移但保留种子，或两者都关
+  seedData: true
+  # 启动时是否删除老库中的主外键约束（默认 false）。
+  # 只有需要清理历史外键时才设 true；生产建议放到迁移脚本中执行
+  dropForeignKeys: false
+  # 示例 PostgreSQL：
+  # type: postgres
+  # host: "127.0.0.1"
+  # port: 5432
+  # user: "postgres"
+  # password: "123456"
+  # dbname: "go_admin"

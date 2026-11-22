@@ -1,0 +1,345 @@
+package api
+
+import (
+	"fmt"
+	"net/http"
+	"time"
+{{- if .IsSub}}
+	"strconv"
+{{- end}}
+
+	"go-admin/dao"
+	"go-admin/genreg"
+	"go-admin/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/xuri/excelize/v2"
+)
+
+// List{{.ClassName}} 查询{{.FunctionName}}
+func List{{.ClassName}}(c *gin.Context) {
+	q := dao.{{.ClassName}}Query{
+		PageNum:  pageNum(c),
+		PageSize: pageSize(c),
+{{- range .Fields}}
+{{- if .IsQuery}}
+{{- if eq .GoType "string"}}
+		{{.GoField}}: c.Query("{{.JsonField}}"),
+{{- else if eq .GoType "float64"}}
+		{{.GoField}}: mustFloat64(c.Query("{{.JsonField}}")),
+{{- else}}
+		{{.GoField}}: mustInt64(c.Query("{{.JsonField}}")),
+{{- end}}
+{{- end}}
+{{- end}}
+	}
+{{- if .IsTree}}
+	list, _, err := dao.List{{.ClassName}}(q)
+{{- else}}
+	list, total, err := dao.List{{.ClassName}}(q)
+{{- end}}
+	if err != nil {
+		utils.Fail(c, 500, "查询失败")
+		return
+	}
+{{- if .IsTree}}
+	// 树形数据：返回带 children 的层级结构
+	utils.OkData(c, list)
+{{- else}}
+	utils.OkTable(c, list, total)
+{{- end}}
+}
+
+// Get{{.ClassName}} 查询{{.FunctionName}}详情
+func Get{{.ClassName}}(c *gin.Context) {
+	item, err := dao.Get{{.ClassName}}(idParam(c))
+	if err != nil {
+		utils.Fail(c, 500, "{{.FunctionName}}不存在")
+		return
+	}
+	utils.OkData(c, item)
+}
+
+// Create{{.ClassName}} 新增{{.FunctionName}}
+func Create{{.ClassName}}(c *gin.Context) {
+	var req dao.{{.ClassName}}Req
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.Fail(c, 500, "请求参数错误")
+		return
+	}
+	if err := dao.Create{{.ClassName}}(req); err != nil {
+		utils.Fail(c, 500, "新增{{.FunctionName}}失败")
+		return
+	}
+	utils.Ok(c)
+}
+
+// Update{{.ClassName}} 修改{{.FunctionName}}
+func Update{{.ClassName}}(c *gin.Context) {
+	var req dao.{{.ClassName}}Req
+	if err := c.ShouldBindJSON(&req); err != nil {
+		utils.Fail(c, 500, "请求参数错误")
+		return
+	}
+	if err := dao.Update{{.ClassName}}(req); err != nil {
+		utils.Fail(c, 500, {{if .IsTree}}err.Error(){{else}}"修改{{.FunctionName}}失败"{{end}})
+		return
+	}
+	utils.Ok(c)
+}
+
+// Delete{{.ClassName}} 删除{{.FunctionName}}
+func Delete{{.ClassName}}(c *gin.Context) {
+	if err := dao.Delete{{.ClassName}}(idParam(c)); err != nil {
+		utils.Fail(c, 500, err.Error())
+		return
+	}
+	utils.Ok(c)
+}
+
+// Export{{.ClassName}} 导出{{.FunctionName}}（xlsx，按当前搜索条件，不分页）
+func Export{{.ClassName}}(c *gin.Context) {
+	q := dao.{{.ClassName}}Query{
+{{- range .Fields}}
+{{- if .IsQuery}}
+{{- if eq .GoType "string"}}
+		{{.GoField}}: c.Query("{{.JsonField}}"),
+{{- else if eq .GoType "float64"}}
+		{{.GoField}}: mustFloat64(c.Query("{{.JsonField}}")),
+{{- else}}
+		{{.GoField}}: mustInt64(c.Query("{{.JsonField}}")),
+{{- end}}
+{{- end}}
+{{- end}}
+	}
+	list, err := dao.List{{.ClassName}}All(q)
+	if err != nil {
+		utils.Fail(c, 500, "导出失败")
+		return
+	}
+	headers := []string{
+{{- range .Fields}}
+		"{{if .Comment}}{{.Comment}}{{else}}{{.GoField}}{{end}}",
+{{- end}}
+	}
+	rows := make([][]interface{}, 0, len(list))
+{{- if .IsSub}}
+	childHeaders := []string{
+		"所属主表行号",
+{{- range .SubFields}}
+		"{{if .Comment}}{{.Comment}}{{else}}{{.GoField}}{{end}}",
+{{- end}}
+	}
+	childRows := make([][]interface{}, 0)
+{{- end}}
+	for i := range list {
+		rows = append(rows, utils.ExcelRow(list[i]))
+{{- if .IsSub}}
+		for j := range list[i].Children {
+			childRows = append(childRows, append([]interface{}{i + 2}, utils.ExcelRow(list[i].Children[j])...))
+		}
+{{- end}}
+	}
+{{- if .IsSub}}
+	data, err := utils.BuildExcelSheets([]utils.ExcelSheet{
+		{Name: "{{.FunctionName}}", Headers: headers, Rows: rows},
+		{Name: "{{.SubTableComment}}", Headers: childHeaders, Rows: childRows},
+	})
+{{- else}}
+	data, err := utils.BuildExcel("{{.FunctionName}}", headers, rows)
+{{- end}}
+	if err != nil {
+		utils.Fail(c, 500, "生成导出文件失败")
+		return
+	}
+	filename := fmt.Sprintf("{{.FunctionName}}_%s.xlsx", time.Now().Format("20060102"))
+	excelAttachment(c, filename)
+	c.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", data)
+}
+
+// Import{{.ClassName}}Template 下载{{.FunctionName}}导入模板
+func Import{{.ClassName}}Template(c *gin.Context) {
+	headers := []string{
+{{- range .Fields}}
+		"{{if .Comment}}{{.Comment}}{{else}}{{.GoField}}{{end}}",
+{{- end}}
+	}
+{{- if .IsSub}}
+	childHeaders := []string{
+		"所属主表行号",
+{{- range .SubFields}}
+		"{{if .Comment}}{{.Comment}}{{else}}{{.GoField}}{{end}}",
+{{- end}}
+	}
+	data, err := utils.BuildExcelSheets([]utils.ExcelSheet{
+		{Name: "{{.FunctionName}}", Headers: headers},
+		{Name: "{{.SubTableComment}}", Headers: childHeaders},
+	})
+{{- else}}
+	data, err := utils.BuildExcel("{{.FunctionName}}", headers, nil)
+{{- end}}
+	if err != nil {
+		utils.Fail(c, 500, "生成导入模板失败")
+		return
+	}
+	filename := fmt.Sprintf("{{.FunctionName}}导入模板_%s.xlsx", time.Now().Format("20060102"))
+	excelAttachment(c, filename)
+	c.Data(http.StatusOK, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", data)
+}
+
+// Import{{.ClassName}} 导入{{.FunctionName}}（xlsx，按表头名称匹配；updateSupport=true 时主键已存在则更新）
+func Import{{.ClassName}}(c *gin.Context) {
+	updateSupport := c.PostForm("updateSupport") == "true"
+	file, err := c.FormFile("file")
+	if err != nil {
+		utils.Fail(c, 500, "请选择要上传的文件")
+		return
+	}
+	if file.Size > maxImportSize {
+		utils.Fail(c, 500, "文件过大，最大支持 5MB")
+		return
+	}
+	src, err := file.Open()
+	if err != nil {
+		utils.Fail(c, 500, "文件读取失败")
+		return
+	}
+	defer src.Close()
+	f, err := excelize.OpenReader(src)
+	if err != nil {
+		utils.Fail(c, 500, "文件解析失败，请上传 xlsx 格式文件")
+		return
+	}
+	defer f.Close()
+	sheets := f.GetSheetList()
+	if len(sheets) == 0 {
+		utils.Fail(c, 500, "文件中没有工作表")
+		return
+	}
+	rows, err := f.GetRows(sheets[0])
+	if err != nil || len(rows) < 2 {
+		utils.Fail(c, 500, "文件中没有数据")
+		return
+	}
+	if len(rows)-1 > maxImportRows {
+		utils.Fail(c, 500, "数据行数超过上限（最多 5000 行）")
+		return
+	}
+{{- if .IsSub}}
+	if len(sheets) < 2 {
+		utils.Fail(c, 500, "主子表导入需要包含明细工作表，请使用下载的导入模板")
+		return
+	}
+	childRows, err := f.GetRows(sheets[1])
+	if err != nil || len(childRows) == 0 {
+		utils.Fail(c, 500, "明细工作表没有数据")
+		return
+	}
+	if len(childRows)-1 > maxImportRows {
+		utils.Fail(c, 500, "明细行数超过上限（最多 5000 行）")
+		return
+	}
+{{- end}}
+	successNum := 0
+	failNum := 0
+	failMessages := make([]string, 0)
+	fail := func(line int, msg string) {
+		failNum++
+		failMessages = append(failMessages, fmt.Sprintf("第 %d 行：%s", line, msg))
+	}
+{{- if .IsSub}}
+	childByRow := make(map[int][]dao.{{.SubClassName}}Req)
+	for i, row := range childRows[1:] {
+		line := i + 2
+		if excelRowEmpty(row) {
+			continue
+		}
+		rowNo, err := strconv.Atoi(excelCell(row, 0))
+		if err != nil || rowNo < 2 {
+			fail(line, "明细表[所属主表行号]必须是主表数据行号（从 2 开始）")
+			continue
+		}
+		var child dao.{{.SubClassName}}Req
+		if len(childRows[0]) <= 1 {
+			fail(line, "明细表缺少列名")
+			continue
+		}
+		if err := utils.UnmarshalExcelRow(&child, childRows[0][1:], row[1:]); err != nil {
+			fail(line, "明细 "+err.Error())
+			continue
+		}
+		childByRow[rowNo] = append(childByRow[rowNo], child)
+	}
+{{- end}}
+	for i, row := range rows[1:] {
+		line := i + 2
+		if excelRowEmpty(row) {
+			continue
+		}
+		var req dao.{{.ClassName}}Req
+		if err := utils.UnmarshalExcelRow(&req, rows[0], row); err != nil {
+			fail(line, err.Error())
+			continue
+		}
+{{- if .IsSub}}
+		// 明细行通过“所属主表行号”关联，新增主表时也能正确挂到新产生的主键
+		req.Children = childByRow[line]
+{{- end}}
+		if err := dao.Import{{.ClassName}}(req, updateSupport); err != nil {
+			fail(line, err.Error())
+			continue
+		}
+		successNum++
+	}
+	if successNum > 0 {
+		// 导入写入显式主键后，PostgreSQL 序列需同步，避免后续自增插入撞键
+{{- range .Fields}}{{if .IsPk}}{{if .IsIncrement}}
+		if err := dao.SyncImportSequence("{{$.TableName}}", "{{.ColumnName}}"); err != nil {
+			failMessages = append(failMessages, "同步自增序列失败："+err.Error())
+		}
+{{- end}}{{end}}{{end}}
+	}
+	utils.OkData(c, gin.H{
+		"successNum":   successNum,
+		"failureNum":   failNum,
+		"failMessages": failMessages,
+	})
+}
+
+// init 把本模块的路由与菜单登记到生成模块注册中心：
+// 放入目录重启后由 router 统一挂载、seed 自动建菜单，无需手工改项目文件。
+func init() {
+	genreg.RegisterModule(genreg.Module{
+		Module:       "{{.ModuleName}}",
+		ClassVar:     "{{.ClassVar}}",
+		ClassName:    "{{.ClassName}}",
+		FunctionName: "{{.FunctionName}}",
+		Menu: genreg.Menu{
+			Name:      "{{.FunctionName}}",
+			ParentID:  1700,
+			Path:      "{{.ClassVar}}",
+			Component: "{{.ModuleName}}/{{.ClassVar}}/index",
+			Perm:      "{{.ModuleName}}:{{.ClassVar}}:list",
+			Icon:      "Grid",
+			OrderNum:  20,
+			Buttons: []genreg.MenuButton{
+				{Name: "{{.FunctionName}}查询", Perm: "{{.ModuleName}}:{{.ClassVar}}:query"},
+				{Name: "{{.FunctionName}}新增", Perm: "{{.ModuleName}}:{{.ClassVar}}:add"},
+				{Name: "{{.FunctionName}}修改", Perm: "{{.ModuleName}}:{{.ClassVar}}:edit"},
+				{Name: "{{.FunctionName}}删除", Perm: "{{.ModuleName}}:{{.ClassVar}}:remove"},
+				{Name: "{{.FunctionName}}导入", Perm: "{{.ModuleName}}:{{.ClassVar}}:import"},
+				{Name: "{{.FunctionName}}导出", Perm: "{{.ModuleName}}:{{.ClassVar}}:export"},
+			},
+		},
+		Routes: []genreg.Route{
+			{Method: "GET", Path: "/list", Perm: "{{.ModuleName}}:{{.ClassVar}}:list", Handler: List{{.ClassName}}},
+			{Method: "GET", Path: "/export", Perm: "{{.ModuleName}}:{{.ClassVar}}:export", Handler: Export{{.ClassName}}},
+			{Method: "GET", Path: "/importTemplate", Perm: "{{.ModuleName}}:{{.ClassVar}}:import", Handler: Import{{.ClassName}}Template},
+			{Method: "POST", Path: "/importData", Perm: "{{.ModuleName}}:{{.ClassVar}}:import", Handler: Import{{.ClassName}}},
+			{Method: "GET", Path: "/:id", Perm: "{{.ModuleName}}:{{.ClassVar}}:query", Handler: Get{{.ClassName}}},
+			{Method: "POST", Path: "", Perm: "{{.ModuleName}}:{{.ClassVar}}:add", Handler: Create{{.ClassName}}},
+			{Method: "PUT", Path: "", Perm: "{{.ModuleName}}:{{.ClassVar}}:edit", Handler: Update{{.ClassName}}},
+			{Method: "DELETE", Path: "/:id", Perm: "{{.ModuleName}}:{{.ClassVar}}:remove", Handler: Delete{{.ClassName}}},
+		},
+	})
+}

@@ -1,0 +1,424 @@
+{
+  "apiList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [
+      {
+        "apiId": "float64",
+        "apiName": "string",
+        "createTime": "string",
+        "method": "string",
+        "path": "string",
+        "perms": "string",
+        "remark": "string",
+        "status": "string"
+      }
+    ],
+    "total": "float64"
+  },
+  "configList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [
+      {
+        "configId": "float64",
+        "configKey": "string",
+        "configName": "string",
+        "configType": "string",
+        "configValue": "string",
+        "createTime": "string",
+        "remark": "string",
+        "updateTime": "string"
+      }
+    ],
+    "total": "float64"
+  },
+  "dashboardStats": {
+    "code": "float64",
+    "data": {
+      "deptCount": "float64",
+      "menuCount": "float64",
+      "noticeCount": "float64",
+      "onlineCount": "float64",
+      "roleCount": "float64",
+      "todayLogin": "float64",
+      "userCount": "float64"
+    },
+    "msg": "string"
+  },
+  "deptList": {
+    "code": "float64",
+    "data": [
+      {
+        "children": [
+          {
+            "children": [],
+            "createTime": "string",
+            "deptId": "float64",
+            "deptName": "string",
+            "email": "string",
+            "leader": "string",
+            "orderNum": "float64",
+            "parentId": "float64",
+            "phone": "string",
+            "status": "string",
+            "updateTime": "string"
+          }
+        ],
+        "createTime": "string",
+        "deptId": "float64",
+        "deptName": "string",
+        "email": "string",
+        "leader": "string",
+        "orderNum": "float64",
+        "parentId": "float64",
+        "phone": "string",
+        "status": "string",
+        "updateTime": "string"
+      }
+    ],
+    "msg": "string"
+  },
+  "dictTypeList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [
+      {
+        "createTime": "string",
+        "dictId": "float64",
+        "dictName": "string",
+        "dictType": "string",
+        "remark": "string",
+        "status": "string",
+        "updateTime": "string"
+      }
+    ],
+    "total": "float64"
+  },
+  "flowDefList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [
+      {
+        "category": "string",
+        "createBy": "string",
+        "createTime": "string",
+        "defKey": "string",
+        "defName": "string",
+        "flowDefId": "float64",
+        "nodes": [
+          {
+            "approverIds": "string",
+            "approverType": "string",
+            "canAddSign": "string",
+            "createTime": "string",
+            "flowDefId": "float64",
+            "flowNodeId": "float64",
+            "nodeMode": "string",
+            "nodeName": "string",
+            "nodeOrder": "float64",
+            "rejectTo": "string",
+            "remark": "string",
+            "timeoutHours": "float64",
+            "updateTime": "string"
+          }
+        ],
+        "remark": "string",
+        "status": "string",
+        "timeoutHours": "float64",
+        "updateTime": "string"
+      }
+    ],
+    "total": "float64"
+  },
+  "genList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [],
+    "total": "float64"
+  },
+  "getInfo": {
+    "code": "float64",
+    "data": {
+      "permissions": [
+        "string"
+      ],
+      "roles": [
+        "string"
+      ],
+      "user": {
+        "avatar": "string",
+        "createTime": "string",
+        "dept": {
+          "children": "nil",
+          "createTime": "string",
+          "deptId": "float64",
+          "deptName": "string",
+          "email": "string",
+          "leader": "string",
+          "orderNum": "float64",
+          "parentId": "float64",
+          "phone": "string",
+          "status": "string",
+          "updateTime": "string"
+        },
+        "deptId": "float64",
+        "email": "string",
+        "nickName": "string",
+        "phonenumber": "string",
+        "posts": [
+          {
+            "createTime": "string",
+            "postCode": "string",
+            "postId": "float64",
+            "postName": "string",
+            "postSort": "float64",
+            "remark": "string",
+            "status": "string",
+            "updateTime": "string"
+          }
+        ],
+        "remark": "string",
+        "roles": [
+          {
+            "createTime": "string",
+            "dataScope": "string",
+            "remark": "string",
+            "roleId": "float64",
+            "roleKey": "string",
+            "roleName": "string",
+            "roleSort": "float64",
+            "status": "string",
+            "updateTime": "string"
+          }
+        ],
+        "status": "string",
+        "updateTime": "string",
+        "userId": "float64",
+        "userName": "string"
+      }
+    },
+    "msg": "string"
+  },
+  "getRouters": {
+    "code": "float64",
+    "data": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "component": "string",
+                "createTime": "string",
+                "icon": "string",
+                "menuId": "float64",
+                "menuName": "string",
+                "menuType": "string",
+                "orderNum": "float64",
+                "parentId": "float64",
+                "path": "string",
+                "perms": "string",
+                "status": "string",
+                "updateTime": "string",
+                "visible": "string"
+              }
+            ],
+            "component": "string",
+            "createTime": "string",
+            "icon": "string",
+            "menuId": "float64",
+            "menuName": "string",
+            "menuType": "string",
+            "orderNum": "float64",
+            "parentId": "float64",
+            "path": "string",
+            "perms": "string",
+            "status": "string",
+            "updateTime": "string",
+            "visible": "string"
+          }
+        ],
+        "component": "string",
+        "createTime": "string",
+        "icon": "string",
+        "menuId": "float64",
+        "menuName": "string",
+        "menuType": "string",
+        "orderNum": "float64",
+        "parentId": "float64",
+        "path": "string",
+        "perms": "string",
+        "status": "string",
+        "updateTime": "string",
+        "visible": "string"
+      }
+    ],
+    "msg": "string"
+  },
+  "jobList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [
+      {
+        "concurrent": "string",
+        "createBy": "string",
+        "createTime": "string",
+        "cronExpression": "string",
+        "invokeTarget": "string",
+        "jobGroup": "string",
+        "jobId": "float64",
+        "jobName": "string",
+        "misfirePolicy": "string",
+        "remark": "string",
+        "status": "string",
+        "updateTime": "string"
+      }
+    ],
+    "total": "float64"
+  },
+  "menuList": {
+    "code": "float64",
+    "data": [
+      {
+        "children": [
+          {
+            "children": [
+              {
+                "children": [],
+                "component": "string",
+                "createTime": "string",
+                "icon": "string",
+                "menuId": "float64",
+                "menuName": "string",
+                "menuType": "string",
+                "orderNum": "float64",
+                "parentId": "float64",
+                "path": "string",
+                "perms": "string",
+                "status": "string",
+                "updateTime": "string",
+                "visible": "string"
+              }
+            ],
+            "component": "string",
+            "createTime": "string",
+            "icon": "string",
+            "menuId": "float64",
+            "menuName": "string",
+            "menuType": "string",
+            "orderNum": "float64",
+            "parentId": "float64",
+            "path": "string",
+            "perms": "string",
+            "status": "string",
+            "updateTime": "string",
+            "visible": "string"
+          }
+        ],
+        "component": "string",
+        "createTime": "string",
+        "icon": "string",
+        "menuId": "float64",
+        "menuName": "string",
+        "menuType": "string",
+        "orderNum": "float64",
+        "parentId": "float64",
+        "path": "string",
+        "perms": "string",
+        "status": "string",
+        "updateTime": "string",
+        "visible": "string"
+      }
+    ],
+    "msg": "string"
+  },
+  "noticeList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [
+      {
+        "createBy": "string",
+        "createTime": "string",
+        "noticeContent": "string",
+        "noticeId": "float64",
+        "noticeTitle": "string",
+        "noticeType": "string",
+        "remark": "string",
+        "status": "string",
+        "updateTime": "string"
+      }
+    ],
+    "total": "float64"
+  },
+  "postList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [
+      {
+        "createTime": "string",
+        "postCode": "string",
+        "postId": "float64",
+        "postName": "string",
+        "postSort": "float64",
+        "remark": "string",
+        "status": "string",
+        "updateTime": "string"
+      }
+    ],
+    "total": "float64"
+  },
+  "roleList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [
+      {
+        "createTime": "string",
+        "dataScope": "string",
+        "remark": "string",
+        "roleId": "float64",
+        "roleKey": "string",
+        "roleName": "string",
+        "roleSort": "float64",
+        "status": "string",
+        "updateTime": "string"
+      }
+    ],
+    "total": "float64"
+  },
+  "userList": {
+    "code": "float64",
+    "msg": "string",
+    "rows": [
+      {
+        "avatar": "string",
+        "createTime": "string",
+        "dept": {
+          "children": "nil",
+          "createTime": "string",
+          "deptId": "float64",
+          "deptName": "string",
+          "email": "string",
+          "leader": "string",
+          "orderNum": "float64",
+          "parentId": "float64",
+          "phone": "string",
+          "status": "string",
+          "updateTime": "string"
+        },
+        "deptId": "float64",
+        "email": "string",
+        "nickName": "string",
+        "phonenumber": "string",
+        "posts": "nil",
+        "remark": "string",
+        "roles": "nil",
+        "status": "string",
+        "updateTime": "string",
+        "userId": "float64",
+        "userName": "string"
+      }
+    ],
+    "total": "float64"
+  }
+}

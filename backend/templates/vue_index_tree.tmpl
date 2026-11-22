@@ -1,0 +1,266 @@
+<template>
+  <div class="app-container">
+    <el-card>
+      <!-- 搜索条件 -->
+      <el-form :inline="true" :model="queryParams" class="search-form">
+{{- range .Fields}}
+{{- if .IsQuery}}
+        <el-form-item label="{{.Comment}}">
+          <el-input
+            v-model="queryParams.{{.JsonField}}"
+            placeholder="请输入{{.Comment}}"
+            clearable
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+{{- end}}
+{{- end}}
+        <el-form-item>
+          <el-button type="primary" :icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button :icon="Refresh" @click="resetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+
+      <div class="table-toolbar">
+        <el-button type="primary" :icon="Plus" @click="openDialog()">新增{{.FunctionName}}</el-button>
+        <el-button
+          v-hasPermi="['{{.ModuleName}}:{{.ClassVar}}:import']"
+          type="success"
+          :icon="Upload"
+          @click="importVisible = true"
+        >
+          导入
+        </el-button>
+        <el-button
+          v-hasPermi="['{{.ModuleName}}:{{.ClassVar}}:export']"
+          type="warning"
+          :icon="Download"
+          :loading="exporting"
+          @click="handleExport"
+        >
+          导出
+        </el-button>
+      </div>
+
+      <el-table
+        :data="list"
+        v-loading="loading"
+        row-key="{{.IDJsonField}}"
+        :tree-props="{ children: 'children' }"
+        default-expand-all
+        border
+        stripe
+      >
+{{- range .Fields}}
+{{- if .IsList}}
+{{- if eq .GoType "bool"}}
+        <el-table-column label="{{.Comment}}" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="row.{{.JsonField}} ? 'success' : 'info'">{{ "{{" }} row.{{.JsonField}} ? '是' : '否' {{ "}}" }}</el-tag>
+          </template>
+        </el-table-column>
+{{- else}}
+        <el-table-column prop="{{.JsonField}}" label="{{.Comment}}" min-width="120" show-overflow-tooltip />
+{{- end}}
+{{- end}}
+{{- end}}
+        <el-table-column label="操作" width="160" fixed="right">
+          <template #default="{ row }">
+            <el-button type="primary" link :icon="Edit" @click="openDialog(row)">修改</el-button>
+            <el-button type="danger" link :icon="Delete" @click="handleDelete(row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+
+    <!-- 新增 / 修改 -->
+    <el-dialog
+      v-model="dialogVisible"
+      :title="form.{{.IDJsonField}} ? '修改{{.FunctionName}}' : '新增{{.FunctionName}}'"
+      width="640px"
+      destroy-on-close
+    >
+      <el-form ref="formRef" :model="form" label-width="100px">
+{{- range .Fields}}
+{{- if and .IsForm (ne .ColumnName $.TreeParent)}}
+        <el-form-item label="{{.Comment}}">
+{{- if eq .FormType "textarea"}}
+          <el-input v-model="form.{{.JsonField}}" type="textarea" placeholder="请输入{{.Comment}}" />
+{{- else if eq .FormType "date"}}
+          <el-date-picker v-model="form.{{.JsonField}}" type="date" value-format="YYYY-MM-DD HH:mm:ss" placeholder="请选择{{.Comment}}" />
+{{- else if eq .FormType "switch"}}
+          <el-switch v-model="form.{{.JsonField}}" />
+{{- else if or (eq .GoType "int64") (eq .GoType "int") (eq .GoType "uint") (eq .GoType "float64") (eq .GoType "float32")}}
+          <el-input-number v-model="form.{{.JsonField}}" :controls="false" style="width: 100%" placeholder="请输入{{.Comment}}" />
+{{- else}}
+          <el-input v-model="form.{{.JsonField}}" placeholder="请输入{{.Comment}}" />
+{{- end}}
+        </el-form-item>
+{{- end}}
+{{- end}}
+        <el-form-item label="上级节点">
+          <el-tree-select
+            v-model="form.{{.TreeParentJsonField}}"
+            :data="list"
+            :props="{ label: '{{.TreeNameJsonField}}', children: 'children' }"
+            node-key="{{.IDJsonField}}"
+            check-strictly
+            clearable
+            placeholder="不选表示顶级节点"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <ExcelImportDialog
+      v-model="importVisible"
+      title="导入{{.FunctionName}}"
+      :template-api="import{{.ClassName}}Template"
+      :import-api="import{{.ClassName}}"
+      hint="树形数据按主键上级关系导入：请先导入上级节点，或将上级主键指向已存在的节点。"
+      @success="fetchList"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { onMounted, reactive, ref } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Search, Refresh, Plus, Edit, Delete, Upload, Download } from '@element-plus/icons-vue'
+import {
+  list{{.ClassName}},
+  add{{.ClassName}},
+  update{{.ClassName}},
+  del{{.ClassName}},
+  export{{.ClassName}},
+  import{{.ClassName}},
+  import{{.ClassName}}Template,
+  type {{.ClassName}}Query,
+  type {{.ClassName}}Row
+} from '@/api/{{.ClassVar}}'
+import { exportFile } from '@/utils/download'
+import ExcelImportDialog from '@/components/ExcelImportDialog/index.vue'
+
+const loading = ref(false)
+const submitting = ref(false)
+const exporting = ref(false)
+const importVisible = ref(false)
+const dialogVisible = ref(false)
+const list = ref<{{.ClassName}}Row[]>([])
+const formRef = ref()
+
+const queryParams = reactive<{{.ClassName}}Query>({
+  pageNum: 1,
+  pageSize: 10,
+{{- range .Fields}}
+{{- if .IsQuery}}
+  {{.JsonField}}: undefined,
+{{- end}}
+{{- end}}
+})
+
+const form = reactive<{{.ClassName}}Row>({
+{{- range .Fields}}
+  {{.JsonField}}: undefined,
+{{- end}}
+})
+
+function resetForm() {
+{{- range .Fields}}
+  form.{{.JsonField}} = undefined
+{{- end}}
+}
+
+async function fetchList() {
+  loading.value = true
+  try {
+    const res = await list{{.ClassName}}(queryParams)
+    // 树形接口返回 data 数组（已按父子关系组装）
+    list.value = res.data || []
+  } finally {
+    loading.value = false
+  }
+}
+
+function handleQuery() {
+  fetchList()
+}
+
+function resetQuery() {
+{{- range .Fields}}
+{{- if .IsQuery}}
+  queryParams.{{.JsonField}} = undefined
+{{- end}}
+{{- end}}
+  handleQuery()
+}
+
+function openDialog(row?: {{.ClassName}}Row) {
+  resetForm()
+  if (row && row.{{.IDJsonField}}) {
+{{- range .Fields}}
+    form.{{.JsonField}} = row.{{.JsonField}}
+{{- end}}
+  }
+  dialogVisible.value = true
+}
+
+async function handleSubmit() {
+  submitting.value = true
+  try {
+    if (form.{{.IDJsonField}}) {
+      await update{{.ClassName}}(form)
+      ElMessage.success('修改成功')
+    } else {
+      await add{{.ClassName}}(form)
+      ElMessage.success('新增成功')
+    }
+    dialogVisible.value = false
+    fetchList()
+  } catch (e) {
+    // 错误已由拦截器提示
+  } finally {
+    submitting.value = false
+  }
+}
+
+async function handleDelete(row: {{.ClassName}}Row) {
+  try {
+    await ElMessageBox.confirm(`确认删除该{{.FunctionName}}吗？`, '提示', { type: 'warning' })
+    await del{{.ClassName}}(row.{{.IDJsonField}})
+    ElMessage.success('删除成功')
+    fetchList()
+  } catch (e) {
+    // 取消或失败
+  }
+}
+
+// 导出当前搜索条件下的全部数据
+async function handleExport() {
+  exporting.value = true
+  try {
+    const date = new Date().toISOString().slice(0, 10)
+    const ok = await exportFile(export{{.ClassName}}(queryParams), `{{.FunctionName}}_${date}.xlsx`)
+    if (ok) ElMessage.success('导出成功')
+  } finally {
+    exporting.value = false
+  }
+}
+
+onMounted(fetchList)
+</script>
+
+<style scoped>
+.search-form {
+  margin-bottom: 12px;
+}
+
+.table-toolbar {
+  margin-bottom: 12px;
+}
+</style>

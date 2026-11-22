@@ -1,0 +1,14 @@
+# ===== 路由说明（无需手工修改 backend/router/router.go） =====
+
+生成的 api 文件在 init() 中调用 genreg.RegisterModule 完成自注册：
+- 路由：由 router/router.go 的代码生成挂载段统一挂到 auth 分组，前缀 /api/{{.ModuleName}}/{{.ClassVar}}
+- 菜单：由 dao/seed.go 的 ensureGenMenus 自动写入 sys_menu（C 菜单 + F 按钮）并绑定超级管理员角色
+
+生成的路由清单（仅供参考，便于接口文档/调试）：
+- GET    /api/{{.ModuleName}}/{{.ClassVar}}/list    {{.ModuleName}}:{{.ClassVar}}:list     List{{.ClassName}}
+- GET    /api/{{.ModuleName}}/{{.ClassVar}}/:id     {{.ModuleName}}:{{.ClassVar}}:query    Get{{.ClassName}}
+- POST   /api/{{.ModuleName}}/{{.ClassVar}}         {{.ModuleName}}:{{.ClassVar}}:add      Create{{.ClassName}}
+- PUT    /api/{{.ModuleName}}/{{.ClassVar}}         {{.ModuleName}}:{{.ClassVar}}:edit     Update{{.ClassName}}
+- DELETE /api/{{.ModuleName}}/{{.ClassVar}}/:id     {{.ModuleName}}:{{.ClassVar}}:remove   Delete{{.ClassName}}
+
+生成者：{{.Author}}
